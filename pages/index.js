@@ -1,10 +1,14 @@
 import Head from "next/head";
 import { useState } from "react";
 import styles from "./index.module.css";
+import { languages } from "./constants/languages";
 
 export default function Home() {
-  const [animalInput, setAnimalInput] = useState("");
-  const [result, setResult] = useState();
+  const [sentenceInput, setSentenceInput] = useState("");
+  const [translationResult, setTranslationResult] = useState();
+  const [languageInput, setLanguageInput] = useState("");
+  const [languageResult, setLanguageResult] = useState();
+
 
   async function onSubmit(event) {
     event.preventDefault();
@@ -14,7 +18,7 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ animal: animalInput }),
+        body: JSON.stringify({ sentence: sentenceInput, language: languageInput }),
       });
 
       const data = await response.json();
@@ -22,9 +26,11 @@ export default function Home() {
         throw data.error || new Error(`Request failed with status ${response.status}`);
       }
 
-      setResult(data.result);
-      setAnimalInput("");
-    } catch(error) {
+      setTranslationResult(data.translationResult)
+      setLanguageResult(data.languageResult)
+      setSentenceInput("")
+      setLanguageInput("")
+    } catch (error) {
       // Consider implementing your own error handling logic here
       console.error(error);
       alert(error.message);
@@ -40,18 +46,30 @@ export default function Home() {
 
       <main className={styles.main}>
         <img src="/dog.png" className={styles.icon} />
-        <h3>Name my pet</h3>
+        <h3>Translate a sentence</h3>
         <form onSubmit={onSubmit}>
           <input
             type="text"
-            name="animal"
-            placeholder="Enter an animal"
-            value={animalInput}
-            onChange={(e) => setAnimalInput(e.target.value)}
+            name="sentence"
+            placeholder="Enter a sentence to proceed."
+            value={sentenceInput}
+            onChange={(e) => setSentenceInput(e.target.value)}
           />
-          <input type="submit" value="Generate names" />
+          <select placeholder="Select the language" value={languageInput} name="language" onChange={(e) => setLanguageInput(e.target.value)}>
+            {languages.map((language) => <option name={language}>{language}</option>)}
+          </select>
+          {/* <input
+            type="text"
+            name="language"
+            placeholder="Enter the language"
+            value={languageInput}
+            onChange={(e) => setLanguageInput(e.target.value)}
+          /> */}
+          <input type="submit" value="Translate Text" />
         </form>
-        <div className={styles.result}>{result}</div>
+        <h5>Translation Result</h5>
+        <div className={styles.result}>{languageResult}</div>
+        <div className={styles.result}>{translationResult}</div>
       </main>
     </div>
   );
